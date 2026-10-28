@@ -131,7 +131,10 @@ li.go .b{padding-bottom:22px;margin-top:-14px}
 @media(min-width:900px){.dh.ht h2{font-size:2.7rem}}
 
 /* home */
-.home{padding-top:30px}
+.home{padding-top:30px;min-width:0}
+.lc{min-width:0}
+.pp{min-width:0}
+html,body{overflow-x:clip}
 .cd{display:flex;align-items:center;gap:22px;padding:22px 24px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
 .cn{font-family:var(--head);font-weight:800;font-size:4rem;line-height:1;color:var(--ai);font-variant-numeric:tabular-nums}
 .cn small{font-size:1.1rem;font-weight:700;margin-left:6px;color:var(--ink)}
@@ -145,7 +148,7 @@ li.go .b{padding-bottom:22px;margin-top:-14px}
 .pr i{font-size:1.2rem}
 .pr i img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 .pr span{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lk{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.lk{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr))}
 .lc{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-decoration:none}
 .lc:hover{border-color:var(--ai)}
 .lc b{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:var(--r2);background:var(--ai);color:var(--bg);font-family:var(--head);font-size:1.1rem}
@@ -153,8 +156,8 @@ li.go .b{padding-bottom:22px;margin-top:-14px}
 .lc strong{display:block;font-size:1rem}
 .lc span{display:block;font-size:.8rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lc em{font-style:normal;color:var(--sub)}
-.dl{display:grid;gap:10px}
-.dc{display:flex;align-items:center;gap:16px;width:100%;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;text-align:left;cursor:pointer}
+.dl{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+.dc{min-width:0;display:flex;align-items:center;gap:16px;width:100%;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;text-align:left;cursor:pointer}
 .dc:hover,.dc.today{border-color:var(--ai)}
 .dc.today{box-shadow:inset 3px 0 0 var(--shu)}
 .dt{flex:none;width:3.6rem;text-align:center;line-height:1.3}
@@ -257,7 +260,9 @@ const TRIP = { year: 2027, travelers: [
   { name:'阿柴', icon:'🐕' }
 ] };
 const LINKS = [
-  { mark:'分', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' }
+  { mark:'帳', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' },
+  { mark:'宿', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' },
+  { mark:'遊', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' }
 ];
 const gviz = n => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(n)}`;
 const src = n => PUB[n] ? PUB[n] + (PUB[n].includes('?') ? '&' : '?') + 't=' + Date.now() : gviz(n);
@@ -368,9 +373,8 @@ function renderHome(animate){
     else if(t0<=end)cd=`<div class="cd"><div class="cn">旅行中</div></div>`;
     else cd=`<div class="cd"><div class="cn" style="font-size:1.8rem">旅程結束</div><div class="cl">謝謝大家，辛苦了</div></div>`;
   }
-  const links=[...LINKS];
   const hd=days.find(d=>d.hotel);
-  if(hd)links.push({mark:'宿',title:'住宿',hint:hd.hotel,url:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(hd.hotel+' 札幌')});
+  const links=LINKS.map(l=>l.hotel&&hd?{...l,hint:hd.hotel}:l);
   const pp=TRIP.travelers.map(x=>`<div class="pr"><i>${x.img?`<img src="${esc(x.img)}" alt="">`:esc(x.icon||[...x.name][0])}</i><span>${esc(x.name)}</span></div>`).join('');
   const lk=links.map(l=>`<a class="lc" href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.mark)}</b><div><strong>${esc(l.title)}</strong><span>${esc(l.hint)}</span></div><em>↗</em></a>`).join('');
   const dl=days.map(d=>{
