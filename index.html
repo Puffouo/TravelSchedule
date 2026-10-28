@@ -10,10 +10,10 @@
 <script>
 const DEFAULT_THEME='snow', SHOW_SWITCHER=true;
 (function(){let t=new URLSearchParams(location.search).get('theme');try{t=t||localStorage.getItem('theme')}catch(e){}
-document.documentElement.dataset.theme=t||DEFAULT_THEME})();
+document.documentElement.dataset.theme=['snow','diary'].includes(t)?t:DEFAULT_THEME})();
 </script>
 <style>
-:root{--bg:#f6f8f8;--paper:#fff;--ink:#1f2226;--sub:#7a8087;--line:#dde2e4;--ai:#27415f;--ai2:#e7edf3;--shu:#b4452f;--shu2:#f8ebe7;--head:"Shippori Mincho",serif;--body:"Zen Kaku Gothic New","Noto Sans TC",sans-serif;--r:6px;--r2:4px;--rs:3px}
+:root{--bg:#f6f8f8;--paper:#fff;--ink:#1f2226;--sub:#7a8087;--line:#dde2e4;--ai:#27415f;--ai2:#e7edf3;--shu:#b4452f;--shu2:#f8ebe7;--head:"Shippori Mincho",serif;--body:"Zen Kaku Gothic New","Noto Sans TC",sans-serif;--r:6px;--r2:4px;--rs:3px;--hl:var(--ai2)}
 @media(prefers-color-scheme:dark){:root{--bg:#14171a;--paper:#1b1f23;--ink:#e9ecee;--sub:#8e969d;--line:#2d3338;--ai:#93b4da;--ai2:#202a35;--shu:#e8836b;--shu2:#2b1f1c}}
 *{box-sizing:border-box}
 html{scroll-padding-top:90px}
@@ -65,7 +65,7 @@ li.plain .rail::after{width:7px;height:7px;margin-left:-3.5px;top:.62rem;backgro
 .b{padding:0 0 28px 8px;min-width:0}
 .title{font-weight:700;font-size:1.06rem;line-height:1.5}
 li.plain .title{font-weight:500;color:var(--sub);font-size:.98rem}
-a.n1,a.n1:visited{color:inherit;text-decoration:none;background:linear-gradient(var(--ai2),var(--ai2)) 0 100%/100% .45em no-repeat;transition:background-size .15s}
+a.n1,a.n1:visited{color:inherit;text-decoration:none;background:linear-gradient(var(--hl),var(--hl)) 0 100%/100% .45em no-repeat;transition:background-size .15s}
 a.n1:hover{background-size:100% 100%}
 .pin{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:0 8px;border:1px solid var(--line);border-radius:20px;font-size:.72rem;font-weight:500;color:var(--ai);text-decoration:none;vertical-align:2px;white-space:nowrap}
 .pin:hover{background:var(--ai2)}
@@ -99,6 +99,11 @@ footer{padding:22px 0 44px;font-size:.76rem;color:var(--sub);text-align:center}
 .subs a.n1:hover{text-decoration-color:var(--ai)}
 .sh{flex:none;display:inline-flex;align-items:center;gap:5px;padding:2px 9px;background:var(--ai2);border-radius:var(--r2);font-weight:700;font-size:.84rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .sh svg{width:11px;height:11px;fill:var(--ai)}
+.sr{gap:10px}
+.sn{flex:1}
+.mp{flex:none;display:inline-grid;place-items:center;width:32px;height:32px;border:1px solid var(--line);border-radius:50%;color:var(--ai);background:var(--paper)}
+.mp svg{width:13px;height:13px;fill:currentColor}
+.mp:hover{background:var(--ai2)}
 
 /* transit */
 li.go .rail::after{display:none}
@@ -119,6 +124,52 @@ li.go .b{padding-bottom:22px;margin-top:-14px}
 .tk b{margin-right:8px;color:var(--ai);font-size:.74rem}
 .xf{display:flex;align-items:center;gap:8px;margin:11px 0;font-size:.74rem;color:var(--sub)}
 .xf::before,.xf::after{content:"";flex:1;height:1px;background:rgba(128,128,128,.35)}
+/* day title */
+.dh.ht h2{font-size:2.2rem;line-height:1.3;letter-spacing:.04em;margin-top:4px}
+.dh h2 small{white-space:nowrap}
+@media(max-width:600px){.dh.ht h2{font-size:1.85rem}}
+@media(min-width:900px){.dh.ht h2{font-size:2.7rem}}
+
+/* home */
+.home{padding-top:30px}
+.cd{display:flex;align-items:center;gap:22px;padding:22px 24px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
+.cn{font-family:var(--head);font-weight:800;font-size:4rem;line-height:1;color:var(--ai);font-variant-numeric:tabular-nums}
+.cn small{font-size:1.1rem;font-weight:700;margin-left:6px;color:var(--ink)}
+.cl{font-size:.92rem;color:var(--sub);line-height:1.6}
+.go2{margin-top:6px;padding:6px 14px;background:var(--ai);color:var(--bg);border:0;border-radius:var(--rs);font:inherit;font-size:.84rem;font-weight:700;cursor:pointer}
+.st{font-family:var(--head);font-weight:700;font-size:1.05rem;letter-spacing:.1em;margin:34px 0 12px;display:flex;align-items:center;gap:12px}
+.st::after{content:"";flex:1;height:1px;background:var(--line)}
+.pp{display:flex;gap:10px}
+.pr{flex:1;display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.pr i{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--ai2);color:var(--ai);font-family:var(--head);font-style:normal;font-weight:700}
+.pr i{font-size:1.2rem}
+.pr i img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.pr span{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lk{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.lc{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-decoration:none}
+.lc:hover{border-color:var(--ai)}
+.lc b{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:var(--r2);background:var(--ai);color:var(--bg);font-family:var(--head);font-size:1.1rem}
+.lc div{flex:1;min-width:0}
+.lc strong{display:block;font-size:1rem}
+.lc span{display:block;font-size:.8rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc em{font-style:normal;color:var(--sub)}
+.dl{display:grid;gap:10px}
+.dc{display:flex;align-items:center;gap:16px;width:100%;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);font:inherit;color:inherit;text-align:left;cursor:pointer}
+.dc:hover,.dc.today{border-color:var(--ai)}
+.dc.today{box-shadow:inset 3px 0 0 var(--shu)}
+.dt{flex:none;width:3.6rem;text-align:center;line-height:1.3}
+.dt b{display:block;font-family:var(--head);font-size:1.25rem}
+.dt span{font-size:.78rem;color:var(--sub)}
+.dm{flex:1;min-width:0}
+.dm small{display:block;color:var(--shu);font-weight:700;font-size:.74rem;letter-spacing:.1em}
+.dm strong{display:block;font-size:1.02rem;line-height:1.5}
+.dm span{display:block;font-size:.8rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc i{font-style:normal;color:var(--sub);font-size:1.3rem}
+html[data-theme=diary] .cd,html[data-theme=diary] .pr,html[data-theme=diary] .lc,html[data-theme=diary] .dc{border:1.5px dashed var(--line)}
+html[data-theme=diary] .dc:hover,html[data-theme=diary] .dc.today,html[data-theme=diary] .lc:hover{border-color:var(--ai)}
+html[data-theme=diary] .cn{text-decoration:underline wavy #ffc83d;text-decoration-thickness:3px;text-underline-offset:8px}
+@media(max-width:600px){.cn{font-size:3.2rem}.cd{padding:18px;gap:16px}.pr{padding:8px 10px;gap:8px}.pr i{width:30px;height:30px}}
+@media(min-width:900px){nav button.hm i{display:none}}
 /* ---- responsive ---- */
 html{-webkit-text-size-adjust:100%}
 .wrap{padding-left:max(22px,env(safe-area-inset-left));padding-right:max(22px,env(safe-area-inset-right))}
@@ -156,17 +207,24 @@ nav button{scroll-snap-align:center;min-height:52px}
 
 /* ---- themes ---- */
 html[data-theme=snow]{}
-html[data-theme=night]{color-scheme:dark;--bg:#0e1726;--paper:#152238;--ink:#e9eef7;--sub:#8c9bb3;--line:#26344d;--ai:#e2b66a;--ai2:#1c2c47;--shu:#f08a6c;--shu2:#2d2330}
-html[data-theme=sakura]{--bg:#fbf4f5;--paper:#fff;--ink:#3a2a30;--sub:#9a8289;--line:#f0dde1;--ai:#b8506a;--ai2:#fbe7ec;--shu:#d9805f;--shu2:#fdeee7;--head:"Zen Maru Gothic",sans-serif;--body:"Zen Maru Gothic","Noto Sans TC",sans-serif;--r:16px;--r2:10px;--rs:20px}
-html[data-theme=matcha]{--bg:#f3f5ef;--paper:#fff;--ink:#232a21;--sub:#7b8575;--line:#dfe4d6;--ai:#4a6b3a;--ai2:#e6eedd;--shu:#a8622f;--shu2:#f6ece2;--r:4px;--r2:3px;--rs:2px}
-html[data-theme=coral]{--bg:#f2f9f9;--paper:#fff;--ink:#17323a;--sub:#6b868d;--line:#d5e7e8;--ai:#1d7a82;--ai2:#dff1f2;--shu:#e5604f;--shu2:#fdebe8;--head:"Zen Maru Gothic",sans-serif;--body:"Zen Maru Gothic","Noto Sans TC",sans-serif;--r:18px;--r2:12px;--rs:20px}
-html[data-theme=coral] .vt{writing-mode:horizontal-tb;font-size:2.5rem;letter-spacing:.06em}
-html[data-theme=coral] header .wrap{flex-direction:column;gap:10px}
-html[data-theme=mono]{--bg:#fff;--paper:#fff;--ink:#111;--sub:#6f6f6f;--line:#d9d9d9;--ai:#111;--ai2:#efefef;--shu:#d7000f;--shu2:#fde8ea;--head:"Zen Kaku Gothic New",sans-serif;--body:"Zen Kaku Gothic New","Noto Sans TC",sans-serif;--r:0px;--r2:0px;--rs:0px}
-html[data-theme=mono] .box,html[data-theme=mono] .hr,html[data-theme=mono] .pn button{border-color:var(--ink);border-width:1.5px}
-html[data-theme=mono] .dh h2,html[data-theme=mono] .vt{font-weight:700}
-html[data-theme=mono] nav{border-bottom:2px solid var(--ink)}
-html[data-theme=sakura] .dh h2,html[data-theme=coral] .dh h2{font-weight:700}
+html[data-theme=diary]{--bg:#fbf6ea;--paper:#fffdf7;--ink:#3d342b;--sub:#8c7f70;--line:#dccfb3;--ai:#23776c;--ai2:#dff0ea;--hl:#ffe08a;--shu:#d9593d;--shu2:#fde9e2;--head:"Zen Maru Gothic",sans-serif;--body:"Zen Maru Gothic","Noto Sans TC",sans-serif;--r:16px;--r2:10px;--rs:20px}
+html[data-theme=diary] body{background-image:radial-gradient(var(--line) 1.1px,transparent 1.3px);background-size:20px 20px}
+html[data-theme=diary] .vt{writing-mode:horizontal-tb;font-size:2.5rem;letter-spacing:.06em;text-decoration:underline wavy #ffc83d;text-decoration-thickness:3px;text-underline-offset:9px}
+html[data-theme=diary] header .wrap{flex-direction:column;gap:12px}
+html[data-theme=diary] .seal{border-radius:50%;transform:rotate(8deg)}
+html[data-theme=diary] .dh h2{font-weight:700}
+html[data-theme=diary] .dn{display:inline-block;padding:1px 16px;background:repeating-linear-gradient(135deg,#ffe699 0 7px,#fff0bd 7px 14px);color:var(--ink);transform:rotate(-2deg);border-radius:3px;letter-spacing:.14em}
+html[data-theme=diary] .box,html[data-theme=diary] .subs,html[data-theme=diary] .hr,html[data-theme=diary] .pn button{border:1.5px dashed var(--line)}
+html[data-theme=diary] .tc{border:1.5px dashed var(--ai)}
+html[data-theme=diary] .sr{border-bottom:1.5px dashed var(--line)}
+html[data-theme=diary] .sr:last-child{border-bottom:0}
+html[data-theme=diary] .tr{border-left-style:dashed}
+html[data-theme=diary] .rail::before{background:repeating-linear-gradient(to bottom,var(--line) 0 4px,transparent 4px 8px);width:2px;margin-left:-1px}
+html[data-theme=diary] .rail::after{width:13px;height:13px;margin-left:-6.5px;top:.4rem;border-width:3px}
+html[data-theme=diary] .box b{border-radius:50%}
+html[data-theme=diary] nav button{border-radius:var(--r2) var(--r2) 0 0}
+html[data-theme=diary] nav button[aria-selected=true]{background:var(--hl);border-bottom-color:var(--shu)}
+@media(min-width:900px){html[data-theme=diary] nav button{border-radius:var(--r2)}html[data-theme=diary] nav button[aria-selected=true]{border-left-color:var(--shu)}}
 
 /* ---- theme switcher ---- */
 #tbtn{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:20;display:flex;align-items:center;gap:8px;padding:9px 15px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:30px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)}
@@ -191,6 +249,16 @@ const SHEET_ID = '1NIDiUh2UruCk9V1omryTVxCpa3zkmqO-vBxFlnAEbQ4';
 const REFRESH_MS = 60000;
 // 若改用「發布到網路」CSV，貼在這裡；留空則用共用連結（gviz）
 const PUB = { data: '', days: '' };
+// 旅程設定
+// icon 放 emoji；想用照片就改成 img:'photos/puff.jpg'（圖片放在同一個 repo）
+const TRIP = { year: 2027, travelers: [
+  { name:'泡芙', icon:'🧁' },
+  { name:'壽司', icon:'🍣' },
+  { name:'阿柴', icon:'🐕' }
+] };
+const LINKS = [
+  { mark:'分', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' }
+];
 const gviz = n => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(n)}`;
 const src = n => PUB[n] ? PUB[n] + (PUB[n].includes('?') ? '&' : '?') + 't=' + Date.now() : gviz(n);
 
@@ -222,10 +290,9 @@ const mapUrl = it => {
 };
 const wk = md => {
   const [m,d]=(md||'').split('/').map(Number);if(!m||!d)return '';
-  const n=new Date();let x=new Date(n.getFullYear(),m-1,d);
-  if(n-x>1.55e10)x=new Date(n.getFullYear()+1,m-1,d);
-  return '日月火水木金土'[x.getDay()];
+  return '日月火水木金土'[new Date(TRIP.year,m-1,d).getDay()];
 };
+const dateOf = md => {const [m,d]=(md||'').split('/').map(Number);return m&&d?new Date(TRIP.year,m-1,d):null};
 const label = d => /^\d+$/.test(d.day)?d.day+'日目':d.day;
 const CLOCK='<svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14.2A6.2 6.2 0 1 1 8 1.8a6.2 6.2 0 0 1 0 12.4zM8.9 4H7.4v4.6l3.6 2.2.8-1.2-2.9-1.7z"/></svg>';
 const PIN='<svg viewBox="0 0 16 16"><path d="M8 0a5.5 5.5 0 0 0-5.5 5.5C2.5 9.6 8 16 8 16s5.5-6.4 5.5-10.5A5.5 5.5 0 0 0 8 0zm0 7.6a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2z"/></svg>';
@@ -239,15 +306,16 @@ function build(d,it){
   days=[...map.values()];
 }
 function pickDefault(){
-  if(days.some(d=>d.day===cur))return;
-  const n=new Date(),today=`${n.getMonth()+1}/${n.getDate()}`;
-  cur=(days.find(d=>d.date===today&&d.day!=='備用')||days[0]).day;
+  if(cur==='home'||days.some(d=>d.day===cur))return;
+  cur='home';
 }
 const isSub=it=>/^(y|yes|是|v|1|true)$/i.test(it.sub||'');
 function subHTML(s){
   const u=mapUrl(s),nm=s.place||s.detail;
-  const name=u?`<a class="n1" href="${esc(u)}" target="_blank" rel="noopener">${esc(nm)}</a><a class="pin" href="${esc(u)}" target="_blank" rel="noopener" aria-label="在 Google 地圖開啟 ${esc(nm)}">${PIN}地圖</a>`:esc(nm);
-  return `<div class="sr"><div class="sn"><div class="nm">${name}</div>`+(s.place&&s.detail?`<div class="sd">${esc(s.detail)}</div>`:'')+(s.note?`<div class="sd">${esc(s.note)}</div>`:'')+`</div>`+(s.hours?`<div class="sh">${CLOCK}${esc(s.hours)}</div>`:'')+`</div>`;
+  const name=u?`<a class="n1" href="${esc(u)}" target="_blank" rel="noopener">${esc(nm)}</a>`:esc(nm);
+  return `<div class="sr"><div class="sn"><div class="nm">${name}</div>`+(s.place&&s.detail?`<div class="sd">${esc(s.detail)}</div>`:'')+(s.note?`<div class="sd">${esc(s.note)}</div>`:'')+`</div>`+
+    (s.hours?`<div class="sh">${CLOCK}${esc(s.hours)}</div>`:'')+
+    (u?`<a class="mp" href="${esc(u)}" target="_blank" rel="noopener" aria-label="在 Google 地圖開啟 ${esc(nm)}">${PIN}</a>`:'')+`</div>`;
 }
 function itemHTML(it,subs=[]){
   const url=mapUrl(it), title=it.place||it.detail, detail=it.place?it.detail:'';
@@ -278,21 +346,52 @@ function groupItems(items){
   });
   return g;
 }
-function render(animate){
-  pickDefault();
-  const idx=days.findIndex(d=>d.day===cur), day=days[idx];
-  document.getElementById('tabs').innerHTML=days.map(d=>
+const order=()=>['home',...days.map(d=>d.day)];
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=`<button role="tab" class="hm" data-day="home" aria-selected="${cur==='home'}"><span>首頁</span><i>旅程</i><em>總覽</em></button>`+days.map(d=>
     `<button role="tab" data-day="${esc(d.day)}" aria-selected="${d.day===cur}"><span>${esc(d.date||'')}</span><i>${esc(wk(d.date)||label(d))}</i><em>${esc(label(d))}</em></button>`).join('');
   const dates=days.filter(d=>d.day!=='備用').map(d=>d.date);
   document.getElementById('range').textContent=dates.length?`${dates[0]} – ${dates[dates.length-1]}`:'';
+}
+const summary=d=>{const p=[...new Set(d.items.filter(i=>i.place&&!i.mode).map(i=>i.place.replace(/\s*\(.*\)$/,'')))];return p.slice(0,3).join('、')+(p.length>3?'…':'')};
+function renderHome(animate){
+  const real=days.filter(d=>/^\d+$/.test(d.day));
+  const n=new Date(),t0=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  const start=dateOf(real[0]?.date),end=dateOf(real[real.length-1]?.date);
+  const todayKey=`${n.getMonth()+1}/${n.getDate()}`;
+  const todayDay=n.getFullYear()===TRIP.year?real.find(d=>d.date===todayKey):null;
+  let cd='';
+  if(start&&end){
+    const diff=Math.round((start-t0)/864e5);
+    if(diff>0)cd=`<div class="cd"><div class="cn">${diff}<small>天</small></div><div class="cl">距離出發<br>${esc(real[0].date)}（${wk(real[0].date)}）</div></div>`;
+    else if(t0<=end&&todayDay)cd=`<div class="cd"><div class="cn">${-diff+1}<small>日目</small></div><div class="cl">旅行中<br><button class="go2" data-day="${esc(todayDay.day)}">看今天行程 ›</button></div></div>`;
+    else if(t0<=end)cd=`<div class="cd"><div class="cn">旅行中</div></div>`;
+    else cd=`<div class="cd"><div class="cn" style="font-size:1.8rem">旅程結束</div><div class="cl">謝謝大家，辛苦了</div></div>`;
+  }
+  const links=[...LINKS];
+  const hd=days.find(d=>d.hotel);
+  if(hd)links.push({mark:'宿',title:'住宿',hint:hd.hotel,url:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(hd.hotel+' 札幌')});
+  const pp=TRIP.travelers.map(x=>`<div class="pr"><i>${x.img?`<img src="${esc(x.img)}" alt="">`:esc(x.icon||[...x.name][0])}</i><span>${esc(x.name)}</span></div>`).join('');
+  const lk=links.map(l=>`<a class="lc" href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.mark)}</b><div><strong>${esc(l.title)}</strong><span>${esc(l.hint)}</span></div><em>↗</em></a>`).join('');
+  const dl=days.map(d=>{
+    const sm=summary(d);
+    return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div><i>›</i></button>`}).join('');
+  document.getElementById('main').innerHTML=`<div class="home${animate?' fade':''}">${cd}<h3 class="st">同行 ${TRIP.travelers.length} 人</h3><div class="pp">${pp}</div><h3 class="st">連結</h3><div class="lk">${lk}</div><h3 class="st">行程一覽</h3><div class="dl">${dl}</div></div>`;
+  document.title='北海道 ALGS 行';
+}
+function render(animate){
+  pickDefault();renderTabs();
+  if(cur==='home'){renderHome(animate);return}
+  const idx=days.findIndex(d=>d.day===cur), day=days[idx];
   const info=[];
   if(day.weather)info.push(`<div class="box"><b>天</b><div class="v">${esc(day.weather)}</div></div>`);
   if(day.hotel)info.push(`<div class="box"><b>宿</b><div class="v"><strong>${esc(day.hotel)}</strong>${day.hotel_note?`<span>${esc(day.hotel_note)}</span>`:''}</div></div>`);
-  const prev=days[idx-1],next=days[idx+1];
-  document.getElementById('main').innerHTML=`<div class="${animate?'fade':''}"><div class="dh"><div class="dn">${esc(label(day))}</div><h2>${esc(day.date||'')}<small>${esc(wk(day.date))}</small></h2>`+
+  const prev=idx>0?days[idx-1]:{day:'home',date:'首頁'},next=days[idx+1];
+  document.getElementById('main').innerHTML=`<div class="${animate?'fade':''}"><div class="dh${day.title?' ht':''}"><div class="dn">${esc(label(day))}</div>`+
+    (day.title?`<h2>${esc(day.title)}<small>${esc(day.date||'')}　${esc(wk(day.date))}</small></h2>`:`<h2>${esc(day.date||'')}<small>${esc(wk(day.date))}</small></h2>`)+
     (info.length?`<div class="info">${info.join('')}</div>`:'')+`</div><ol>${groupItems(day.items).map(g=>g.legs?transitHTML(g.legs):itemHTML(g.it,g.subs)).join('')}</ol>`+
     `<div class="pn">${prev?`<button data-day="${esc(prev.day)}">‹ ${esc(prev.date)}</button>`:''}${next?`<button class="nx" data-day="${esc(next.day)}">${esc(next.date)} ›</button>`:''}</div></div>`;
-  document.title=`${label(day)} ${day.date} ｜ 北海道 ALGS 行`;
+  document.title=`${label(day)} ${day.title||day.date} ｜ 北海道 ALGS 行`;
 }
 function go(d){
   if(!d||d===cur)return;
@@ -303,9 +402,9 @@ function go(d){
 document.addEventListener('click',e=>{const b=e.target.closest('button[data-day]');if(b)go(b.dataset.day)});
 document.addEventListener('keydown',e=>{
   if(e.target.closest('input,textarea'))return;
-  const i=days.findIndex(d=>d.day===cur);
-  if(e.key==='ArrowLeft'&&days[i-1])go(days[i-1].day);
-  if(e.key==='ArrowRight'&&days[i+1])go(days[i+1].day);
+  const o=order(),i=o.indexOf(cur);
+  if(e.key==='ArrowLeft'&&o[i-1])go(o[i-1]);
+  if(e.key==='ArrowRight'&&o[i+1])go(o[i+1]);
 });
 let sx=0,sy=0;
 document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
@@ -313,15 +412,15 @@ document.addEventListener('touchend',e=>{
   if(e.target.closest('nav,.tr'))return;
   const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
   if(Math.abs(dx)<70||Math.abs(dy)>45)return;
-  const i=days.findIndex(d=>d.day===cur);
-  go((dx<0?days[i+1]:days[i-1])?.day);
+  const o=order(),i=o.indexOf(cur);
+  go(dx<0?o[i+1]:o[i-1]);
 },{passive:true});
 
 async function load(){
   try{
     const [d,it]=await Promise.all([get('days'),get('data')]);
     build(d,it);
-    const first=!document.querySelector('.dh');
+    const first=!window.__r;window.__r=1;
     const y=scrollY;render(false);if(!first)scrollTo(0,y);
     document.getElementById('foot').textContent='資料每分鐘自動更新｜最後更新 '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
   }catch(e){
@@ -332,11 +431,7 @@ async function load(){
 /* ---- theme switcher ---- */
 const THEMES=[
  ['snow','雪白','日系簡約・明朝體・自動深色','#f6f8f8','#27415f','#b4452f'],
- ['night','夜雪','深藍夜色・琥珀點綴','#0e1726','#e2b66a','#f08a6c'],
- ['sakura','櫻','圓潤可愛・手帳風','#fbf4f5','#b8506a','#d9805f'],
- ['matcha','抹茶','沉穩自然・綠與茶','#f3f5ef','#4a6b3a','#a8622f'],
- ['coral','珊瑚海','清爽活潑・圓體・橫排標題','#f2f9f9','#1d7a82','#e5604f'],
- ['mono','黑白','高對比・直角・雜誌感','#ffffff','#111111','#d7000f']
+ ['diary','手帳','可愛手帳・圓體・點點紙','#fbf6ea','#23776c','#ffd166']
 ];
 function setTheme(id){
   document.documentElement.dataset.theme=id;
