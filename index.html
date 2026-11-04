@@ -26,6 +26,7 @@ header .wrap{display:flex;gap:22px;align-items:flex-start}
 .vt{writing-mode:vertical-rl;font-family:var(--head);font-weight:800;font-size:3.4rem;line-height:1;letter-spacing:.18em;margin:0;color:var(--ink)}
 .hd{padding-top:6px}
 .hd .sub{font-family:var(--head);font-weight:500;font-size:1.15rem;letter-spacing:.2em}
+.hd .rng:empty::before{content:"\200b"}
 .hd .rng{color:var(--sub);font-size:.9rem;margin-top:6px;letter-spacing:.08em}
 .seal{display:inline-grid;place-items:center;width:2.1rem;height:2.1rem;margin-top:16px;background:var(--shu);color:#fff;font-family:var(--head);font-weight:700;font-size:1.05rem;border-radius:var(--rs);transform:rotate(-4deg)}
 
@@ -331,10 +332,10 @@ const ICONS = {
   link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
 };
 const LINKS = [
+  { icon:'passport', title:'入境', hint:'Visit Japan Web', url:'https://www.vjw.digital.go.jp/' },
   { icon:'wallet', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' },
-  { icon:'home', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' },
   { icon:'bus', title:'一日遊', hint:'旭山・青池', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' },
-  { icon:'passport', title:'入境', hint:'Visit Japan Web', url:'https://www.vjw.digital.go.jp/' }
+  { icon:'home', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' }
 ];
 // 天氣：試算表 days 分頁的 city 欄填城市名稱，對應這裡的座標
 // 不在表裡的城市會自動用名稱查座標；也可以直接在 city 欄填「43.06,141.35」
