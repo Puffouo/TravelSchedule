@@ -274,7 +274,8 @@ const TRIP = { year: 2027, travelers: [
 const LINKS = [
   { mark:'帳', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' },
   { mark:'宿', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' },
-  { mark:'遊', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' }
+  { mark:'遊', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' },
+  { mark:'入', title:'Visit Japan Web', hint:'入境審查・海關申報 QR Code', url:'https://www.vjw.digital.go.jp/' }
 ];
 const gviz = n => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(n)}`;
 const src = n => PUB[n] ? PUB[n] + (PUB[n].includes('?') ? '&' : '?') + 't=' + Date.now() : gviz(n);
