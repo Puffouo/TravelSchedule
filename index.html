@@ -152,6 +152,8 @@ html,body{overflow-x:clip}
 .lc{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);color:inherit;text-decoration:none}
 .lc:hover{border-color:var(--ai)}
 .lc b{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:var(--r2);background:var(--ai);color:var(--bg);font-family:var(--head);font-size:1.1rem}
+.lc b.ic{background:var(--ai2);color:var(--ai)}
+.lc b svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .lc div{flex:1;min-width:0}
 .lc strong{display:block;font-size:1rem}
 .lc span{display:block;font-size:.8rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -168,6 +170,10 @@ html,body{overflow-x:clip}
 .dm strong{display:block;font-size:1.02rem;line-height:1.5}
 .dm span{display:block;font-size:.8rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dc i{font-style:normal;color:var(--sub);font-size:1.3rem}
+.dw{flex:none;text-align:center;line-height:1.2;font-size:1.25rem}
+.dw small{display:block;font-size:.7rem;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+.box .v .wm{display:block;font-variant-numeric:tabular-nums}
+.box .v .wr{display:inline-block;margin-left:6px;padding:0 5px;font-size:.68rem;font-weight:700;border:1px solid var(--line);border-radius:var(--rs);color:var(--sub);vertical-align:1px}
 html[data-theme=diary] .cd,html[data-theme=diary] .pr,html[data-theme=diary] .lc,html[data-theme=diary] .dc{border:1.5px dashed var(--line)}
 html[data-theme=diary] .dc:hover,html[data-theme=diary] .dc.today,html[data-theme=diary] .lc:hover{border-color:var(--ai)}
 html[data-theme=diary] .cn{text-decoration:underline wavy #ffc83d;text-decoration-thickness:3px;text-underline-offset:8px}
@@ -224,6 +230,18 @@ html[data-theme=diary] .sr:last-child{border-bottom:0}
 html[data-theme=diary] .tr{border-left-style:dashed}
 html[data-theme=diary] .rail::before{background:repeating-linear-gradient(to bottom,var(--line) 0 4px,transparent 4px 8px);width:2px;margin-left:-1px}
 html[data-theme=diary] .rail::after{width:13px;height:13px;margin-left:-6.5px;top:.4rem;border-width:3px}
+/* ---- 現在／下一站（只在旅行當天出現） ---- */
+li.past>.t,li.past>.b{opacity:.4}
+li.past .rail::after{background:var(--sub)}
+li.now .rail::after{background:var(--shu);box-shadow:0 0 0 4px var(--shu2);animation:pulse 2s ease-in-out infinite}
+li.next .rail::after{background:var(--paper);border-color:var(--ai)}
+li.go.now .rail::after{display:block;width:9px;height:9px;margin-left:-4.5px;top:.5rem}
+@keyframes pulse{50%{box-shadow:0 0 0 7px transparent}}
+@media(prefers-reduced-motion:reduce){li.now .rail::after{animation:none}}
+.nb{display:block;width:max-content;margin:5px 0 0 auto;padding:0 5px;font-family:var(--body);font-size:.66rem;font-weight:700;line-height:1.65;letter-spacing:.04em;border:1px solid;border-radius:var(--rs)}
+li.now .nb{background:var(--shu);border-color:var(--shu);color:var(--paper)}
+li.next .nb{color:var(--ai);border-color:var(--ai)}
+.cl .nx2{display:block;color:var(--ink);font-weight:700}
 html[data-theme=diary] .box b{border-radius:50%}
 html[data-theme=diary] nav button{border-radius:var(--r2) var(--r2) 0 0}
 html[data-theme=diary] nav button[aria-selected=true]{background:var(--hl);border-bottom-color:var(--shu)}
@@ -259,11 +277,33 @@ const TRIP = { year: 2027, travelers: [
   { name:'壽司', icon:'🍣' },
   { name:'阿柴', icon:'🐕' }
 ] };
+// 連結圖示：icon 可選 wallet、home、bus、passport、ticket、plane、train、food、link；不填 icon 就改用 mark 的文字
+const ICONS = {
+  wallet:'<path d="M4 7.5h14.5c.8 0 1.5.7 1.5 1.5v9c0 .8-.7 1.5-1.5 1.5h-13C4.7 19.5 4 18.8 4 18V6.5C4 5.7 4.7 5 5.5 5H16"/><path d="M20 11.5h-3.5a1.5 1.5 0 0 0 0 3H20"/>',
+  home:'<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-5.5h4V20"/>',
+  bus:'<rect x="5" y="3.5" width="14" height="14" rx="2.5"/><path d="M5 11h14M9.5 6.5h5M7.5 17.5V20M16.5 17.5V20"/><circle cx="8.5" cy="14.3" r=".4"/><circle cx="15.5" cy="14.3" r=".4"/>',
+  passport:'<rect x="5.5" y="3" width="13" height="18" rx="1.8"/><circle cx="12" cy="10.5" r="3.2"/><path d="M8.8 10.5h6.4M9 16.5h6"/>',
+  ticket:'<path d="M4 8V6.5h16V8a2 2 0 0 0 0 4v1.5a2 2 0 0 0 0 4V17.5H4V16a2 2 0 0 0 0-4V12a2 2 0 0 0 0-4z"/><path d="M14 7v11" stroke-dasharray="1.5 2"/>',
+  plane:'<path d="M10.5 13.5 4 11l1.5-1.5 7 1 3.5-3.5c.8-.8 2.2-.8 2.5 0 .3.3.2 1.7-.5 2.5L14.5 13l1 7L14 21.5l-2.5-6.5-3 3V20l-1.5 1-1-3.5-3.5-1 1-1.5h2l3-3"/>',
+  train:'<rect x="6" y="3.5" width="12" height="13" rx="3"/><path d="M6 10h12M9 20l1.5-3.5M15 20l-1.5-3.5"/><circle cx="9.3" cy="13.3" r=".4"/><circle cx="14.7" cy="13.3" r=".4"/>',
+  food:'<path d="M7 3.5v17M4.5 3.5V8a2.5 2.5 0 0 0 5 0V3.5M16.5 20.5v-17c-2 0-3.5 2.5-3.5 6v4.5h3.5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'
+};
 const LINKS = [
-  { mark:'帳', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' },
-  { mark:'宿', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' },
-  { mark:'遊', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' }
+  { icon:'wallet', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' },
+  { icon:'home', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' },
+  { icon:'bus', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' },
+  { icon:'passport', title:'Visit Japan Web', hint:'入境審查・海關申報 QR Code', url:'https://www.vjw.digital.go.jp/' }
 ];
+// 天氣：試算表 days 分頁的 city 欄填城市名稱，對應這裡的座標
+// 不在表裡的城市會自動用名稱查座標；也可以直接在 city 欄填「43.06,141.35」
+const CITY = {
+  '札幌':[43.0618,141.3545], '旭川':[43.7706,142.3650], '小樽':[43.1907,140.9947],
+  '美瑛':[43.5883,142.4670], '富良野':[43.3420,142.3832], '千歲':[42.8210,141.6510],
+  '新千歲':[42.7752,141.6923], '層雲峽':[43.7222,142.9500], '函館':[41.7687,140.7288],
+  '登別':[42.4128,141.1067], '洞爺':[42.5667,140.8167], '二世谷':[42.8048,140.6874]
+};
+const WX_KEY='algs-wx', WX_MS=3600000;
 const gviz = n => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(n)}`;
 const src = n => PUB[n] ? PUB[n] + (PUB[n].includes('?') ? '&' : '?') + 't=' + Date.now() : gviz(n);
 
@@ -298,6 +338,72 @@ const wk = md => {
   return '日月火水木金土'[new Date(TRIP.year,m-1,d).getDay()];
 };
 const dateOf = md => {const [m,d]=(md||'').split('/').map(Number);return m&&d?new Date(TRIP.year,m-1,d):null};
+// 「現在」一律用日本時間；測試可在網址加 ?now=2027-02-10T10:30
+function nowJST(){
+  const q=new URLSearchParams(location.search).get('now'),m=q&&q.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ](\d{1,2}):(\d{2}))?/);
+  if(m)return{y:+m[1],m:+m[2],d:+m[3],min:(+m[4]||0)*60+(+m[5]||0)};
+  const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',hourCycle:'h23'}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  return{y:+p.year,m:+p.month,d:+p.day,min:+p.hour*60+(+p.minute)};
+}
+const isToday=(md,n)=>{const [m,d]=(md||'').split('/').map(Number);return n.y===TRIP.year&&m===n.m&&d===n.d};
+const toMin=s=>{const m=String(s||'').replace(/：/g,':').match(/(\d{1,2}):(\d{2})/);return m?+m[1]*60+(+m[2]):null};
+const gTime=g=>g.legs?(g.legs.find(l=>l.time)||{}).time:g.it.time;
+// 只有「今天」那一頁會回傳進度；其他日子（含旅程結束後）維持原樣
+function progress(day,groups){
+  const n=nowJST();if(!isToday(day.date,n))return null;
+  const ts=groups.map(g=>toMin(gTime(g)));
+  let cur=-1;ts.forEach((t,i)=>{if(t!=null&&t<=n.min)cur=i});
+  return{cur,next:ts.findIndex((t,i)=>i>cur&&t!=null)};
+}
+const gState=(p,i)=>!p?'':i===p.cur?'now':i===p.next?'next':i<p.cur?'past':'';
+const BADGE={now:'進行中',next:'下一站'};
+const badge=st=>BADGE[st]?`<span class="nb">${BADGE[st]}</span>`:'';
+const gName=g=>g.legs?g.legs.map(l=>[l.mode,l.line].filter(Boolean).join(' ')).join(' → '):(g.it.place||g.it.detail||'');
+/* ---- 天氣（Open-Meteo，免金鑰，最多 16 天預報） ---- */
+const WMO=c=>c===0?['☀️','晴']:c===1?['🌤️','晴時多雲']:c===2?['⛅','多雲']:c===3?['☁️','陰']:c<=48?['🌫️','霧']:c<=57?['🌦️','毛毛雨']:c<=65?['🌧️','雨']:c<=67?['🌧️','凍雨']:c<=77?['❄️','雪']:c<=82?['🌦️','陣雨']:c<=86?['🌨️','陣雪']:['⛈️','雷雨'];
+const isSnow=w=>(w.code>=71&&w.code<=77)||w.code===85||w.code===86||w.snow>0;
+let wx={};try{wx=JSON.parse(localStorage.getItem(WX_KEY)||'{}').data||{}}catch(e){}
+const isoOf=md=>{const [m,d]=(md||'').split('/').map(Number);return m&&d?`${TRIP.year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:''};
+const daysAhead=md=>{const n=nowJST(),t=dateOf(md);return t?Math.round((t-new Date(n.y,n.m-1,n.d))/864e5):null};
+// 只在「今天到 15 天後」之間顯示預報；已過的日子與旅程結束後維持手動內容
+function wxOf(day){
+  const a=daysAhead(day.date);if(!day.city||a==null||a<0||a>15)return null;
+  return (wx[day.city]||{})[isoOf(day.date)]||null;
+}
+async function coordOf(c){
+  const m=c.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);if(m)return[+m[1],+m[2]];
+  if(CITY[c])return CITY[c];
+  const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=ja&countryCode=JP&name='+encodeURIComponent(c));
+  const g=(await r.json()).results?.[0];if(!g)throw new Error('找不到城市 '+c);return[g.latitude,g.longitude];
+}
+let wxBusy=false;
+async function loadWx(){
+  if(wxBusy)return;
+  const want=days.filter(d=>d.city&&(a=>a!=null&&a>=0&&a<=15)(daysAhead(d.date)));
+  if(!want.length)return;
+  let saved={};try{saved=JSON.parse(localStorage.getItem(WX_KEY)||'{}')}catch(e){}
+  const cities=[...new Set(want.map(d=>d.city))];
+  if(saved.t&&Date.now()-saved.t<WX_MS&&cities.every(c=>saved.data&&saved.data[c]))return;
+  const data={};wxBusy=true;
+  await Promise.all(cities.map(async c=>{
+    try{
+      const [lat,lon]=await coordOf(c);
+      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=Asia%2FTokyo&forecast_days=16&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,snowfall_sum`);
+      const j=(await r.json()).daily;data[c]={};
+      j.time.forEach((t,i)=>data[c][t]={code:j.weather_code[i],hi:j.temperature_2m_max[i],lo:j.temperature_2m_min[i],fhi:j.apparent_temperature_max[i],flo:j.apparent_temperature_min[i],pop:j.precipitation_probability_max[i],snow:j.snowfall_sum[i]});
+    }catch(e){console.warn('天氣',c,e);data[c]=saved.data?.[c]||{}}
+  }));wxBusy=false;
+  wx=data;try{localStorage.setItem(WX_KEY,JSON.stringify({t:Date.now(),data}))}catch(e){}
+  const y=scrollY;render(false);scrollTo(0,y);
+}
+const deg=v=>v==null?'–':Math.round(v)+'°';
+function wxBox(day){
+  const w=wxOf(day);if(!w)return '';
+  const [ic,tx]=WMO(w.code);
+  const h=`<strong>${ic} ${tx}　${deg(w.lo)} / ${deg(w.hi)}${daysAhead(day.date)>7?'<span class="wr">參考</span>':''}</strong>`+
+      `<span class="wm">體感 ${deg(w.flo)} / ${deg(w.fhi)}${w.pop!=null?`　${isSnow(w)?'降雪':'降雨'}機率 ${w.pop}%`:''}</span>`;
+  return `<div class="box"><b>天</b><div class="v">${h}</div></div>`;
+}
 const label = d => /^\d+$/.test(d.day)?d.day+'日目':d.day;
 const CLOCK='<svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14.2A6.2 6.2 0 1 1 8 1.8a6.2 6.2 0 0 1 0 12.4zM8.9 4H7.4v4.6l3.6 2.2.8-1.2-2.9-1.7z"/></svg>';
 const PIN='<svg viewBox="0 0 16 16"><path d="M8 0a5.5 5.5 0 0 0-5.5 5.5C2.5 9.6 8 16 8 16s5.5-6.4 5.5-10.5A5.5 5.5 0 0 0 8 0zm0 7.6a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2z"/></svg>';
@@ -322,24 +428,24 @@ function subHTML(s){
     (s.hours?`<div class="sh">${CLOCK}${esc(s.hours)}</div>`:'')+
     (u?`<a class="mp" href="${esc(u)}" target="_blank" rel="noopener" aria-label="在 Google 地圖開啟 ${esc(nm)}">${PIN}</a>`:'')+`</div>`;
 }
-function itemHTML(it,subs=[]){
+function itemHTML(it,subs=[],ps=''){
   const url=mapUrl(it), title=it.place||it.detail, detail=it.place?it.detail:'';
   const st=it.status?`<span class="s ${it.status==='已預訂'?'ok':'no'}">${esc(it.status)}</span>`:'';
   const t=url?`<a class="n1" href="${esc(url)}" target="_blank" rel="noopener">${esc(title)}</a><a class="pin" href="${esc(url)}" target="_blank" rel="noopener" aria-label="在 Google 地圖開啟 ${esc(title)}">${PIN}地圖</a>`:esc(title);
-  return `<li class="${it.place||subs.length?'':'plain'}"><div class="t">${esc(it.time)}</div><div class="rail"></div><div class="b"><div class="title">${t}${st}</div>`+
+  return `<li class="${it.place||subs.length?'':'plain'} ${ps}"${ps==='now'||ps==='next'?` id="mk-${ps}"`:''}><div class="t">${esc(it.time)}${badge(ps)}</div><div class="rail"></div><div class="b"><div class="title">${t}${st}</div>`+
     (it.hours?`<div class="hr">${CLOCK}營業 ${esc(it.hours)}</div>`:'')+
     (detail?`<div class="d">${esc(detail)}</div>`:'')+
     (it.transport?`<div class="tr">${esc(it.transport)}</div>`:'')+
     (it.note?`<div class="n">${esc(it.note)}</div>`:'')+(subs.length?`<div class="subs">${subs.map(subHTML).join('')}</div>`:'')+`</div></li>`;
 }
-function transitHTML(legs){
+function transitHTML(legs,st=''){
   const t=(legs.find(l=>l.time)||{}).time||'';
   const body=legs.map(l=>`<div class="leg"><div class="lh"><span class="md">${esc(l.mode)}</span>${l.line?`<b class="ln">${esc(l.line)}</b>`:''}${l.status?`<span class="s ${l.status==='已預訂'?'ok':'no'}">${esc(l.status)}</span>`:''}</div>`+
     (l.detail?`<div class="rt">${esc(l.detail)}</div>`:'')+
     ((l.ride||l.fare)?`<div class="mt">${l.ride?`<span>${CLOCK}${esc(l.ride)}</span>`:''}${l.fare?`<span><i class="fy">¥</i>${esc(l.fare)}</span>`:''}</div>`:'')+
     (l.ticket?`<div class="tk"><b>購票</b>${esc(l.ticket)}</div>`:'')+
     (l.note?`<div class="sd">${esc(l.note)}</div>`:'')+`</div>`).join('<div class="xf">轉乘</div>');
-  return `<li class="go"><div class="t">${esc(t)}</div><div class="rail"></div><div class="b"><div class="tc">${body}</div></div></li>`;
+  return `<li class="go ${st}"${st==='now'||st==='next'?` id="mk-${st}"`:''}><div class="t">${esc(t)}${badge(st)}</div><div class="rail"></div><div class="b"><div class="tc">${body}</div></div></li>`;
 }
 function groupItems(items){
   const g=[];
@@ -361,25 +467,27 @@ function renderTabs(){
 const summary=d=>{const p=[...new Set(d.items.filter(i=>i.place&&!i.mode).map(i=>i.place.replace(/\s*\(.*\)$/,'')))];return p.slice(0,3).join('、')+(p.length>3?'…':'')};
 function renderHome(animate){
   const real=days.filter(d=>/^\d+$/.test(d.day));
-  const n=new Date(),t0=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  const n=nowJST(),t0=new Date(n.y,n.m-1,n.d);
   const start=dateOf(real[0]?.date),end=dateOf(real[real.length-1]?.date);
-  const todayKey=`${n.getMonth()+1}/${n.getDate()}`;
-  const todayDay=n.getFullYear()===TRIP.year?real.find(d=>d.date===todayKey):null;
+  const todayDay=real.find(d=>isToday(d.date,n));
   let cd='';
   if(start&&end){
     const diff=Math.round((start-t0)/864e5);
     if(diff>0)cd=`<div class="cd"><div class="cn">${diff}<small>天</small></div><div class="cl">距離出發<br>${esc(real[0].date)}（${wk(real[0].date)}）</div></div>`;
-    else if(t0<=end&&todayDay)cd=`<div class="cd"><div class="cn">${-diff+1}<small>日目</small></div><div class="cl">旅行中<br><button class="go2" data-day="${esc(todayDay.day)}">看今天行程 ›</button></div></div>`;
+    else if(t0<=end&&todayDay){
+      const g=groupItems(todayDay.items),p=progress(todayDay,g),x=p&&(p.next>=0?g[p.next]:g[p.cur]);
+      const nx=x?`<span class="nx2">${p.next>=0?'下一站':'進行中'}　${esc(gTime(x)||'')} ${esc(gName(x))}</span>`:'';
+      cd=`<div class="cd"><div class="cn">${-diff+1}<small>日目</small></div><div class="cl">旅行中${nx?'':'<br>'}${nx}<button class="go2" data-day="${esc(todayDay.day)}">看今天行程 ›</button></div></div>`;}
     else if(t0<=end)cd=`<div class="cd"><div class="cn">旅行中</div></div>`;
     else cd=`<div class="cd"><div class="cn" style="font-size:1.8rem">旅程結束</div><div class="cl">謝謝大家，辛苦了</div></div>`;
   }
   const hd=days.find(d=>d.hotel);
   const links=LINKS.map(l=>l.hotel&&hd?{...l,hint:hd.hotel}:l);
   const pp=TRIP.travelers.map(x=>`<div class="pr"><i>${x.img?`<img src="${esc(x.img)}" alt="">`:esc(x.icon||[...x.name][0])}</i><span>${esc(x.name)}</span></div>`).join('');
-  const lk=links.map(l=>`<a class="lc" href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.mark)}</b><div><strong>${esc(l.title)}</strong><span>${esc(l.hint)}</span></div><em>↗</em></a>`).join('');
+  const lk=links.map(l=>`<a class="lc" href="${esc(l.url)}" target="_blank" rel="noopener">${ICONS[l.icon]?`<b class="ic"><svg viewBox="0 0 24 24">${ICONS[l.icon]}</svg></b>`:`<b>${esc(l.mark||'')}</b>`}<div><strong>${esc(l.title)}</strong><span>${esc(l.hint)}</span></div><em>↗</em></a>`).join('');
   const dl=days.map(d=>{
     const sm=summary(d);
-    return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div><i>›</i></button>`}).join('');
+    return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div>${(w=>w?`<span class="dw">${WMO(w.code)[0]}<small>${deg(w.lo)}/${deg(w.hi)}</small></span>`:'')(wxOf(d))}<i>›</i></button>`}).join('');
   document.getElementById('main').innerHTML=`<div class="home${animate?' fade':''}">${cd}<h3 class="st">同行 ${TRIP.travelers.length} 人</h3><div class="pp">${pp}</div><h3 class="st">連結</h3><div class="lk">${lk}</div><h3 class="st">行程一覽</h3><div class="dl">${dl}</div></div>`;
   document.title='北海道 ALGS 行';
 }
@@ -388,19 +496,21 @@ function render(animate){
   if(cur==='home'){renderHome(animate);return}
   const idx=days.findIndex(d=>d.day===cur), day=days[idx];
   const info=[];
-  if(day.weather)info.push(`<div class="box"><b>天</b><div class="v">${esc(day.weather)}</div></div>`);
+  const wb=wxBox(day);if(wb)info.push(wb);
   if(day.hotel)info.push(`<div class="box"><b>宿</b><div class="v"><strong>${esc(day.hotel)}</strong>${day.hotel_note?`<span>${esc(day.hotel_note)}</span>`:''}</div></div>`);
+  const groups=groupItems(day.items),pg=progress(day,groups);
   const prev=idx>0?days[idx-1]:{day:'home',date:'首頁'},next=days[idx+1];
   document.getElementById('main').innerHTML=`<div class="${animate?'fade':''}"><div class="dh${day.title?' ht':''}"><div class="dn">${esc(label(day))}</div>`+
     (day.title?`<h2>${esc(day.title)}<small>${esc(day.date||'')}　${esc(wk(day.date))}</small></h2>`:`<h2>${esc(day.date||'')}<small>${esc(wk(day.date))}</small></h2>`)+
-    (info.length?`<div class="info">${info.join('')}</div>`:'')+`</div><ol>${groupItems(day.items).map(g=>g.legs?transitHTML(g.legs):itemHTML(g.it,g.subs)).join('')}</ol>`+
+    (info.length?`<div class="info">${info.join('')}</div>`:'')+`</div><ol>${groups.map((g,i)=>g.legs?transitHTML(g.legs,gState(pg,i)):itemHTML(g.it,g.subs,gState(pg,i))).join('')}</ol>`+
     `<div class="pn">${prev?`<button data-day="${esc(prev.day)}">‹ ${esc(prev.date)}</button>`:''}${next?`<button class="nx" data-day="${esc(next.day)}">${esc(next.date)} ›</button>`:''}</div></div>`;
   document.title=`${label(day)} ${day.title||day.date} ｜ 北海道 ALGS 行`;
 }
+const toMark=()=>(document.getElementById('mk-now')||document.getElementById('mk-next'))?.scrollIntoView({block:'center'});
 function go(d){
   if(!d||d===cur)return;
   cur=d;history.replaceState(null,'','#'+encodeURIComponent(cur));
-  render(true);scrollTo({top:0});
+  render(true);scrollTo({top:0});toMark();
   document.querySelector('#tabs [aria-selected=true]')?.scrollIntoView({inline:'center',block:'nearest'});
 }
 document.addEventListener('click',e=>{const b=e.target.closest('button[data-day]');if(b)go(b.dataset.day)});
@@ -425,9 +535,11 @@ async function load(){
     const [d,it]=await Promise.all([get('days'),get('data')]);
     build(d,it);
     const first=!window.__r;window.__r=1;
-    const y=scrollY;render(false);if(!first)scrollTo(0,y);
+    const y=scrollY;render(false);if(!first)scrollTo(0,y);else toMark();
+    loadWx().catch(e=>console.warn('天氣',e));
     document.getElementById('foot').textContent='資料每分鐘自動更新｜最後更新 '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
   }catch(e){
+    if(days.length){const y=scrollY;render(false);scrollTo(0,y)}
     if(!days.length)document.getElementById('main').innerHTML='<div class="msg">讀取不到資料。請確認試算表已設為「知道連結的人可檢視」，且分頁名稱為 data 與 days。<br><small>'+esc(e.message)+'</small></div>';
   }
 }
