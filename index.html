@@ -135,7 +135,7 @@ li.go .b{padding-bottom:22px;margin-top:-14px}
 .lc{min-width:0}
 .pp{min-width:0}
 html,body{overflow-x:clip}
-.cd{display:flex;align-items:center;gap:22px;padding:22px 24px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
+.cd{display:flex;flex-wrap:wrap;align-items:center;gap:22px;padding:22px 24px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
 .cn{font-family:var(--head);font-weight:800;font-size:4rem;line-height:1;color:var(--ai);font-variant-numeric:tabular-nums}
 .cn small{font-size:1.1rem;font-weight:700;margin-left:6px;color:var(--ink)}
 .cl{font-size:.92rem;color:var(--sub);line-height:1.6}
@@ -153,6 +153,12 @@ html,body{overflow-x:clip}
 .lc:hover{border-color:var(--ai)}
 .lc b{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:var(--r2);background:var(--ai);color:var(--bg);font-family:var(--head);font-size:1.1rem}
 .lc b.ic{background:var(--ai2);color:var(--ai)}
+.cd{row-gap:16px}
+.cp{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding-top:14px;border-top:1px dashed var(--line)}
+.cp small{color:var(--sub);font-size:.76rem;letter-spacing:.08em;margin-right:2px}
+.cm{display:flex;align-items:center;gap:6px;font-size:.86rem;font-weight:700}
+.cm i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ai2);font-style:normal;font-size:.95rem;overflow:hidden}
+.cm i img{width:100%;height:100%;object-fit:cover}
 /* 連結：兩欄小卡 */
 .lk{grid-template-columns:repeat(2,minmax(0,1fr))}
 .lc{gap:10px;padding:12px}
@@ -327,8 +333,8 @@ const ICONS = {
 const LINKS = [
   { icon:'wallet', title:'分帳', hint:'LINE 群組帳本', url:'https://liff.line.me/1655320992-Y8GowEpw/g/fdwciSqUo4jXdyMUK4WteR' },
   { icon:'home', title:'住宿', hint:'Airbnb', hotel:true, url:'https://www.airbnb.com.tw/rooms/1270601487447971191' },
-  { icon:'bus', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' },
-  { icon:'passport', title:'Visit Japan Web', hint:'入境審查・海關申報 QR Code', url:'https://www.vjw.digital.go.jp/' }
+  { icon:'bus', title:'一日遊', hint:'旭山・青池', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' },
+  { icon:'passport', title:'入境', hint:'Visit Japan Web', url:'https://www.vjw.digital.go.jp/' }
 ];
 // 天氣：試算表 days 分頁的 city 欄填城市名稱，對應這裡的座標
 // 不在表裡的城市會自動用名稱查座標；也可以直接在 city 欄填「43.06,141.35」
@@ -530,14 +536,17 @@ function renderHome(animate){
     else if(t0<=end)cd=`<div class="cd"><div class="cn">旅行中</div></div>`;
     else cd=`<div class="cd"><div class="cn" style="font-size:1.8rem">旅程結束</div><div class="cl">謝謝大家，辛苦了</div></div>`;
   }
+  // 同行者放在倒數卡片底部
+  const pp=TRIP.travelers.map(x=>`<div class="cm"><i>${x.img?`<img src="${esc(x.img)}" alt="">`:esc(x.icon||[...x.name][0])}</i><span>${esc(x.name)}</span></div>`).join('');
+  const ppRow=`<div class="cp"><small>同行 ${TRIP.travelers.length} 人</small>${pp}</div>`;
+  cd=cd?cd.replace(/<\/div>$/,ppRow+'</div>'):`<div class="cd">${ppRow}</div>`;
   const hd=days.find(d=>d.hotel);
   const links=LINKS.map(l=>l.hotel&&hd?{...l,hint:hd.hotel}:l);
-  const pp=TRIP.travelers.map(x=>`<div class="pr"><i>${x.img?`<img src="${esc(x.img)}" alt="">`:esc(x.icon||[...x.name][0])}</i><span>${esc(x.name)}</span></div>`).join('');
   const lk=links.map(l=>`<a class="lc" href="${esc(l.url)}" target="_blank" rel="noopener">${ICONS[l.icon]?`<b class="ic"><svg viewBox="0 0 24 24">${ICONS[l.icon]}</svg></b>`:`<b>${esc(l.mark||'')}</b>`}<div><strong>${esc(l.title)}</strong><span>${esc(l.hint)}</span></div><em>↗</em></a>`).join('');
   const dl=days.map(d=>{
     const sm=summary(d);
     return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div>${(w=>w?`<span class="dw">${WMO(w.code)[0]}<small>${deg(w.lo)}/${deg(w.hi)}</small></span>`:'')(wxOf(d))}<i>›</i></button>`}).join('');
-  document.getElementById('main').innerHTML=`<div class="home${animate?' fade':''}">${cd}<h3 class="st">同行 ${TRIP.travelers.length} 人</h3><div class="pp">${pp}</div><h3 class="st">連結</h3><div class="lk">${lk}</div><h3 class="st">行程一覽</h3><div class="dl">${dl}</div></div>`;
+  document.getElementById('main').innerHTML=`<div class="home${animate?' fade':''}">${cd}<h3 class="st">連結</h3><div class="lk">${lk}</div><h3 class="st">行程一覽</h3><div class="dl">${dl}</div></div>`;
   document.title='北海道 ALGS 行';
   const cu=document.querySelector('.cu');
   if(cu&&!countDone&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
