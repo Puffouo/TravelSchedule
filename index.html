@@ -168,6 +168,11 @@ html,body{overflow-x:clip}
 .dm strong{display:block;font-size:1.02rem;line-height:1.5}
 .dm span{display:block;font-size:.8rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dc i{font-style:normal;color:var(--sub);font-size:1.3rem}
+.dw{flex:none;text-align:center;line-height:1.2;font-size:1.25rem}
+.dw small{display:block;font-size:.7rem;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
+.box .v .wm{display:block;font-variant-numeric:tabular-nums}
+.box .v .wn{display:block;color:var(--ink);margin-top:2px}
+.box .v .wr{display:inline-block;margin-left:6px;padding:0 5px;font-size:.68rem;font-weight:700;border:1px solid var(--line);border-radius:var(--rs);color:var(--sub);vertical-align:1px}
 html[data-theme=diary] .cd,html[data-theme=diary] .pr,html[data-theme=diary] .lc,html[data-theme=diary] .dc{border:1.5px dashed var(--line)}
 html[data-theme=diary] .dc:hover,html[data-theme=diary] .dc.today,html[data-theme=diary] .lc:hover{border-color:var(--ai)}
 html[data-theme=diary] .cn{text-decoration:underline wavy #ffc83d;text-decoration-thickness:3px;text-underline-offset:8px}
@@ -277,6 +282,15 @@ const LINKS = [
   { mark:'遊', title:'旭山動物園・青池一日遊', hint:'Klook 包車', url:'https://www.klook.com/zh-TW/activity/105219-asahikawa-zoo-ningle-terrace-shirahige-waterfall-day-tour-private-tour-sapporo/?package_id=669416' },
   { mark:'入', title:'Visit Japan Web', hint:'入境審查・海關申報 QR Code', url:'https://www.vjw.digital.go.jp/' }
 ];
+// 天氣：試算表 days 分頁的 city 欄填城市名稱，對應這裡的座標
+// 不在表裡的城市會自動用名稱查座標；也可以直接在 city 欄填「43.06,141.35」
+const CITY = {
+  '札幌':[43.0618,141.3545], '旭川':[43.7706,142.3650], '小樽':[43.1907,140.9947],
+  '美瑛':[43.5883,142.4670], '富良野':[43.3420,142.3832], '千歲':[42.8210,141.6510],
+  '新千歲':[42.7752,141.6923], '層雲峽':[43.7222,142.9500], '函館':[41.7687,140.7288],
+  '登別':[42.4128,141.1067], '洞爺':[42.5667,140.8167], '二世谷':[42.8048,140.6874]
+};
+const WX_KEY='algs-wx', WX_MS=3600000;
 const gviz = n => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(n)}`;
 const src = n => PUB[n] ? PUB[n] + (PUB[n].includes('?') ? '&' : '?') + 't=' + Date.now() : gviz(n);
 
@@ -332,6 +346,53 @@ const gState=(p,i)=>!p?'':i===p.cur?'now':i===p.next?'next':i<p.cur?'past':'';
 const BADGE={now:'進行中',next:'下一站'};
 const badge=st=>BADGE[st]?`<span class="nb">${BADGE[st]}</span>`:'';
 const gName=g=>g.legs?g.legs.map(l=>[l.mode,l.line].filter(Boolean).join(' ')).join(' → '):(g.it.place||g.it.detail||'');
+/* ---- 天氣（Open-Meteo，免金鑰，最多 16 天預報） ---- */
+const WMO=c=>c===0?['☀️','晴']:c===1?['🌤️','晴時多雲']:c===2?['⛅','多雲']:c===3?['☁️','陰']:c<=48?['🌫️','霧']:c<=57?['🌦️','毛毛雨']:c<=65?['🌧️','雨']:c<=67?['🌧️','凍雨']:c<=77?['❄️','雪']:c<=82?['🌦️','陣雨']:c<=86?['🌨️','陣雪']:['⛈️','雷雨'];
+const isSnow=w=>(w.code>=71&&w.code<=77)||w.code===85||w.code===86||w.snow>0;
+let wx={};try{wx=JSON.parse(localStorage.getItem(WX_KEY)||'{}').data||{}}catch(e){}
+const isoOf=md=>{const [m,d]=(md||'').split('/').map(Number);return m&&d?`${TRIP.year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:''};
+const daysAhead=md=>{const n=nowJST(),t=dateOf(md);return t?Math.round((t-new Date(n.y,n.m-1,n.d))/864e5):null};
+// 只在「今天到 15 天後」之間顯示預報；已過的日子與旅程結束後維持手動內容
+function wxOf(day){
+  const a=daysAhead(day.date);if(!day.city||a==null||a<0||a>15)return null;
+  return (wx[day.city]||{})[isoOf(day.date)]||null;
+}
+async function coordOf(c){
+  const m=c.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*$/);if(m)return[+m[1],+m[2]];
+  if(CITY[c])return CITY[c];
+  const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=ja&countryCode=JP&name='+encodeURIComponent(c));
+  const g=(await r.json()).results?.[0];if(!g)throw new Error('找不到城市 '+c);return[g.latitude,g.longitude];
+}
+let wxBusy=false;
+async function loadWx(){
+  if(wxBusy)return;
+  const want=days.filter(d=>d.city&&(a=>a!=null&&a>=0&&a<=15)(daysAhead(d.date)));
+  if(!want.length)return;
+  let saved={};try{saved=JSON.parse(localStorage.getItem(WX_KEY)||'{}')}catch(e){}
+  const cities=[...new Set(want.map(d=>d.city))];
+  if(saved.t&&Date.now()-saved.t<WX_MS&&cities.every(c=>saved.data&&saved.data[c]))return;
+  const data={};wxBusy=true;
+  await Promise.all(cities.map(async c=>{
+    try{
+      const [lat,lon]=await coordOf(c);
+      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=Asia%2FTokyo&forecast_days=16&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,snowfall_sum`);
+      const j=(await r.json()).daily;data[c]={};
+      j.time.forEach((t,i)=>data[c][t]={code:j.weather_code[i],hi:j.temperature_2m_max[i],lo:j.temperature_2m_min[i],fhi:j.apparent_temperature_max[i],flo:j.apparent_temperature_min[i],pop:j.precipitation_probability_max[i],snow:j.snowfall_sum[i]});
+    }catch(e){console.warn('天氣',c,e);data[c]=saved.data?.[c]||{}}
+  }));wxBusy=false;
+  wx=data;try{localStorage.setItem(WX_KEY,JSON.stringify({t:Date.now(),data}))}catch(e){}
+  const y=scrollY;render(false);scrollTo(0,y);
+}
+const deg=v=>v==null?'–':Math.round(v)+'°';
+function wxBox(day){
+  const w=wxOf(day);if(!w&&!day.weather)return '';
+  let h='';
+  if(w){const [ic,tx]=WMO(w.code);
+    h=`<strong>${ic} ${tx}　${deg(w.lo)} / ${deg(w.hi)}${daysAhead(day.date)>7?'<span class="wr">參考</span>':''}</strong>`+
+      `<span class="wm">體感 ${deg(w.flo)} / ${deg(w.fhi)}${w.pop!=null?`　${isSnow(w)?'降雪':'降雨'}機率 ${w.pop}%`:''}</span>`;}
+  if(day.weather)h+=w?`<span class="wn">${esc(day.weather)}</span>`:esc(day.weather);
+  return `<div class="box"><b>天</b><div class="v">${h}</div></div>`;
+}
 const label = d => /^\d+$/.test(d.day)?d.day+'日目':d.day;
 const CLOCK='<svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 14.2A6.2 6.2 0 1 1 8 1.8a6.2 6.2 0 0 1 0 12.4zM8.9 4H7.4v4.6l3.6 2.2.8-1.2-2.9-1.7z"/></svg>';
 const PIN='<svg viewBox="0 0 16 16"><path d="M8 0a5.5 5.5 0 0 0-5.5 5.5C2.5 9.6 8 16 8 16s5.5-6.4 5.5-10.5A5.5 5.5 0 0 0 8 0zm0 7.6a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2z"/></svg>';
@@ -415,7 +476,7 @@ function renderHome(animate){
   const lk=links.map(l=>`<a class="lc" href="${esc(l.url)}" target="_blank" rel="noopener"><b>${esc(l.mark)}</b><div><strong>${esc(l.title)}</strong><span>${esc(l.hint)}</span></div><em>↗</em></a>`).join('');
   const dl=days.map(d=>{
     const sm=summary(d);
-    return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div><i>›</i></button>`}).join('');
+    return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div>${(w=>w?`<span class="dw">${WMO(w.code)[0]}<small>${deg(w.lo)}/${deg(w.hi)}</small></span>`:'')(wxOf(d))}<i>›</i></button>`}).join('');
   document.getElementById('main').innerHTML=`<div class="home${animate?' fade':''}">${cd}<h3 class="st">同行 ${TRIP.travelers.length} 人</h3><div class="pp">${pp}</div><h3 class="st">連結</h3><div class="lk">${lk}</div><h3 class="st">行程一覽</h3><div class="dl">${dl}</div></div>`;
   document.title='北海道 ALGS 行';
 }
@@ -424,7 +485,7 @@ function render(animate){
   if(cur==='home'){renderHome(animate);return}
   const idx=days.findIndex(d=>d.day===cur), day=days[idx];
   const info=[];
-  if(day.weather)info.push(`<div class="box"><b>天</b><div class="v">${esc(day.weather)}</div></div>`);
+  const wb=wxBox(day);if(wb)info.push(wb);
   if(day.hotel)info.push(`<div class="box"><b>宿</b><div class="v"><strong>${esc(day.hotel)}</strong>${day.hotel_note?`<span>${esc(day.hotel_note)}</span>`:''}</div></div>`);
   const groups=groupItems(day.items),pg=progress(day,groups);
   const prev=idx>0?days[idx-1]:{day:'home',date:'首頁'},next=days[idx+1];
@@ -464,6 +525,7 @@ async function load(){
     build(d,it);
     const first=!window.__r;window.__r=1;
     const y=scrollY;render(false);if(!first)scrollTo(0,y);else toMark();
+    loadWx().catch(e=>console.warn('天氣',e));
     document.getElementById('foot').textContent='資料每分鐘自動更新｜最後更新 '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
   }catch(e){
     if(days.length){const y=scrollY;render(false);scrollTo(0,y)}
