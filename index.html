@@ -171,7 +171,6 @@ html,body{overflow-x:clip}
 .dw{flex:none;text-align:center;line-height:1.2;font-size:1.25rem}
 .dw small{display:block;font-size:.7rem;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
 .box .v .wm{display:block;font-variant-numeric:tabular-nums}
-.box .v .wn{display:block;color:var(--ink);margin-top:2px}
 .box .v .wr{display:inline-block;margin-left:6px;padding:0 5px;font-size:.68rem;font-weight:700;border:1px solid var(--line);border-radius:var(--rs);color:var(--sub);vertical-align:1px}
 html[data-theme=diary] .cd,html[data-theme=diary] .pr,html[data-theme=diary] .lc,html[data-theme=diary] .dc{border:1.5px dashed var(--line)}
 html[data-theme=diary] .dc:hover,html[data-theme=diary] .dc.today,html[data-theme=diary] .lc:hover{border-color:var(--ai)}
@@ -385,12 +384,10 @@ async function loadWx(){
 }
 const deg=v=>v==null?'–':Math.round(v)+'°';
 function wxBox(day){
-  const w=wxOf(day);if(!w&&!day.weather)return '';
-  let h='';
-  if(w){const [ic,tx]=WMO(w.code);
-    h=`<strong>${ic} ${tx}　${deg(w.lo)} / ${deg(w.hi)}${daysAhead(day.date)>7?'<span class="wr">參考</span>':''}</strong>`+
-      `<span class="wm">體感 ${deg(w.flo)} / ${deg(w.fhi)}${w.pop!=null?`　${isSnow(w)?'降雪':'降雨'}機率 ${w.pop}%`:''}</span>`;}
-  if(day.weather)h+=w?`<span class="wn">${esc(day.weather)}</span>`:esc(day.weather);
+  const w=wxOf(day);if(!w)return '';
+  const [ic,tx]=WMO(w.code);
+  const h=`<strong>${ic} ${tx}　${deg(w.lo)} / ${deg(w.hi)}${daysAhead(day.date)>7?'<span class="wr">參考</span>':''}</strong>`+
+      `<span class="wm">體感 ${deg(w.flo)} / ${deg(w.fhi)}${w.pop!=null?`　${isSnow(w)?'降雪':'降雨'}機率 ${w.pop}%`:''}</span>`;
   return `<div class="box"><b>天</b><div class="v">${h}</div></div>`;
 }
 const label = d => /^\d+$/.test(d.day)?d.day+'日目':d.day;
