@@ -153,6 +153,14 @@ html,body{overflow-x:clip}
 .lc:hover{border-color:var(--ai)}
 .lc b{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:var(--r2);background:var(--ai);color:var(--bg);font-family:var(--head);font-size:1.1rem}
 .lc b.ic{background:var(--ai2);color:var(--ai)}
+/* 連結：兩欄小卡 */
+.lk{grid-template-columns:repeat(2,minmax(0,1fr))}
+.lc{gap:10px;padding:12px}
+.lc b{width:34px;height:34px}
+.lc b svg{width:20px;height:20px}
+.lc strong{font-size:.9rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lc span{font-size:.72rem;margin-top:1px}
+.lc em{display:none}
 .lc b svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .lc div{flex:1;min-width:0}
 .lc strong{display:block;font-size:1rem}
@@ -237,7 +245,34 @@ li.now .rail::after{background:var(--shu);box-shadow:0 0 0 4px var(--shu2);anima
 li.next .rail::after{background:var(--paper);border-color:var(--ai)}
 li.go.now .rail::after{display:block;width:9px;height:9px;margin-left:-4.5px;top:.5rem}
 @keyframes pulse{50%{box-shadow:0 0 0 7px transparent}}
-@media(prefers-reduced-motion:reduce){li.now .rail::after{animation:none}}
+/* 時間軸進度線：已走過的線段變紅 */
+li.past .rail::before,html[data-theme=diary] li.past .rail::before{background:var(--shu);opacity:1}
+li.now .rail::before,html[data-theme=diary] li.now .rail::before{background:linear-gradient(var(--shu),var(--line) 70%);opacity:1}
+li.past .rail::after{background:var(--shu)}
+li.go.past .rail::before,li.go.now .rail::before{opacity:.75}
+.fade ol>li,.fade .dc{animation:f .38s ease-out both;animation-delay:calc(var(--i,0)*45ms)}
+/* 按壓回饋 */
+.lc,.dc,.pn button,.go2{transition:transform .12s ease,border-color .15s}
+.lc:active,.dc:active,.pn button:active,.go2:active{transform:scale(.97)}
+/* 「旅」印章 */
+.seal{--rot:-4deg;animation:stamp .55s .25s cubic-bezier(.3,1.6,.5,1) both}
+html[data-theme=diary] .seal{--rot:8deg}
+@keyframes stamp{0%{opacity:0;transform:scale(2.2) rotate(calc(var(--rot) - 14deg))}55%{opacity:1;transform:scale(.9) rotate(var(--rot))}100%{opacity:1;transform:scale(1) rotate(var(--rot))}}
+/* 分頁底線滑動 */
+nav .wrap{position:relative}
+#ind{position:absolute;bottom:0;height:2px;background:var(--shu);pointer-events:none;transition:left .3s cubic-bezier(.4,0,.2,1),width .3s cubic-bezier(.4,0,.2,1),top .3s cubic-bezier(.4,0,.2,1),height .3s cubic-bezier(.4,0,.2,1)}
+nav .wrap.ind button[aria-selected=true]{border-bottom-color:transparent}
+@media(min-width:900px){#ind{bottom:auto;width:2px}nav .wrap.ind button[aria-selected=true]{border-left-color:transparent}}
+/* 飄雪 */
+#snow{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.app{position:relative;z-index:1}
+#snow i{position:absolute;top:-12px;border-radius:50%;background:var(--ai);opacity:.16;animation:fall linear infinite}
+@media(prefers-color-scheme:dark){html:not([data-theme=diary]) #snow i{background:#fff;opacity:.3}}
+html[data-theme=diary] #snow i{background:var(--shu);opacity:.22}
+html[data-theme=diary] #snow i:nth-child(3n){background:#ffc83d;opacity:.5}
+html[data-theme=diary] #snow i:nth-child(3n+1){background:var(--ai)}
+@keyframes fall{to{transform:translate(var(--dx),105vh)}}
+@media(prefers-reduced-motion:reduce){li.now .rail::after,.fade ol>li,.fade .dc,.seal,#snow i{animation:none}#snow{display:none}.lc,.dc,.pn button,.go2,#ind{transition:none}}
 .nb{display:block;width:max-content;margin:5px 0 0 auto;padding:0 5px;font-family:var(--body);font-size:.66rem;font-weight:700;line-height:1.65;letter-spacing:.04em;border:1px solid;border-radius:var(--rs)}
 li.now .nb{background:var(--shu);border-color:var(--shu);color:var(--paper)}
 li.next .nb{color:var(--ai);border-color:var(--ai)}
@@ -458,11 +493,25 @@ function groupItems(items){
   return g;
 }
 const order=()=>['home',...days.map(d=>d.day)];
+let indPos=null,countDone=false;
+function moveInd(){
+  const w=document.getElementById('tabs'),b=w.querySelector('[aria-selected=true]');if(!b)return;
+  let el=document.getElementById('ind');if(!el){el=document.createElement('span');el.id='ind';w.append(el);w.classList.add('ind')}
+  const desk=matchMedia('(min-width:900px)').matches;
+  const to=desk?{left:b.offsetLeft,top:b.offsetTop,width:2,height:b.offsetHeight}:{left:b.offsetLeft,top:b.offsetTop+b.offsetHeight-2,width:b.offsetWidth,height:2};
+  const from=indPos||to;
+  Object.assign(el.style,{transition:'none',left:from.left+'px',top:from.top+'px',width:from.width+'px',height:from.height+'px'});
+  el.offsetWidth;el.style.transition='';
+  Object.assign(el.style,{left:to.left+'px',top:to.top+'px',width:to.width+'px',height:to.height+'px'});indPos=to;
+}
+addEventListener('resize',()=>{indPos=null;moveInd()});
+document.fonts?.ready.then(()=>{indPos=null;moveInd()});
 function renderTabs(){
   document.getElementById('tabs').innerHTML=`<button role="tab" class="hm" data-day="home" aria-selected="${cur==='home'}"><span>首頁</span><i>旅程</i><em>總覽</em></button>`+days.map(d=>
     `<button role="tab" data-day="${esc(d.day)}" aria-selected="${d.day===cur}"><span>${esc(d.date||'')}</span><i>${esc(wk(d.date)||label(d))}</i><em>${esc(label(d))}</em></button>`).join('');
   const dates=days.filter(d=>d.day!=='備用').map(d=>d.date);
   document.getElementById('range').textContent=dates.length?`${dates[0]} – ${dates[dates.length-1]}`:'';
+  moveInd();
 }
 const summary=d=>{const p=[...new Set(d.items.filter(i=>i.place&&!i.mode).map(i=>i.place.replace(/\s*\(.*\)$/,'')))];return p.slice(0,3).join('、')+(p.length>3?'…':'')};
 function renderHome(animate){
@@ -473,7 +522,7 @@ function renderHome(animate){
   let cd='';
   if(start&&end){
     const diff=Math.round((start-t0)/864e5);
-    if(diff>0)cd=`<div class="cd"><div class="cn">${diff}<small>天</small></div><div class="cl">距離出發<br>${esc(real[0].date)}（${wk(real[0].date)}）</div></div>`;
+    if(diff>0)cd=`<div class="cd"><div class="cn"><span class="cu" data-n="${diff}">${diff}</span><small>天</small></div><div class="cl">距離出發<br>${esc(real[0].date)}（${wk(real[0].date)}）</div></div>`;
     else if(t0<=end&&todayDay){
       const g=groupItems(todayDay.items),p=progress(todayDay,g),x=p&&(p.next>=0?g[p.next]:g[p.cur]);
       const nx=x?`<span class="nx2">${p.next>=0?'下一站':'進行中'}　${esc(gTime(x)||'')} ${esc(gName(x))}</span>`:'';
@@ -490,6 +539,12 @@ function renderHome(animate){
     return `<button class="dc${todayDay&&todayDay.day===d.day?' today':''}" data-day="${esc(d.day)}"><div class="dt"><b>${esc(d.date||'')}</b><span>${esc(wk(d.date))}</span></div><div class="dm"><small>${esc(label(d))}</small><strong>${esc(d.title||sm||'行程')}</strong>${d.title&&sm?`<span>${esc(sm)}</span>`:''}</div>${(w=>w?`<span class="dw">${WMO(w.code)[0]}<small>${deg(w.lo)}/${deg(w.hi)}</small></span>`:'')(wxOf(d))}<i>›</i></button>`}).join('');
   document.getElementById('main').innerHTML=`<div class="home${animate?' fade':''}">${cd}<h3 class="st">同行 ${TRIP.travelers.length} 人</h3><div class="pp">${pp}</div><h3 class="st">連結</h3><div class="lk">${lk}</div><h3 class="st">行程一覽</h3><div class="dl">${dl}</div></div>`;
   document.title='北海道 ALGS 行';
+  const cu=document.querySelector('.cu');
+  if(cu&&!countDone&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
+    countDone=true;const n=+cu.dataset.n,t0=performance.now();
+    const step=t=>{const k=Math.min(1,(t-t0)/800);cu.textContent=Math.round(n*(1-Math.pow(1-k,3)));if(k<1&&cu.isConnected)requestAnimationFrame(step)};
+    cu.textContent='0';requestAnimationFrame(step);
+  }
 }
 function render(animate){
   pickDefault();renderTabs();
@@ -507,10 +562,11 @@ function render(animate){
   document.title=`${label(day)} ${day.title||day.date} ｜ 北海道 ALGS 行`;
 }
 const toMark=()=>(document.getElementById('mk-now')||document.getElementById('mk-next'))?.scrollIntoView({block:'center'});
+const stagger=()=>document.querySelectorAll('#main .fade ol>li,#main .fade .dc').forEach((el,i)=>el.style.setProperty('--i',Math.min(i,12)));
 function go(d){
   if(!d||d===cur)return;
   cur=d;history.replaceState(null,'','#'+encodeURIComponent(cur));
-  render(true);scrollTo({top:0});toMark();
+  render(true);stagger();scrollTo({top:0});toMark();
   document.querySelector('#tabs [aria-selected=true]')?.scrollIntoView({inline:'center',block:'nearest'});
 }
 document.addEventListener('click',e=>{const b=e.target.closest('button[data-day]');if(b)go(b.dataset.day)});
@@ -563,6 +619,11 @@ if(SHOW_SWITCHER){
   document.addEventListener('click',e=>{if(!e.target.closest('#tpanel,#tbtn'))p.classList.remove('open')});
   document.body.append(p,b);setTheme(document.documentElement.dataset.theme);
 }
+/* ---- 飄雪 ---- */
+(()=>{const sn=document.createElement('div');sn.id='snow';sn.setAttribute('aria-hidden','true');
+  sn.innerHTML=Array.from({length:22},()=>{const z=(2+Math.random()*4).toFixed(1),d=(10+Math.random()*12).toFixed(1);
+    return `<i style="left:${(Math.random()*100).toFixed(1)}%;width:${z}px;height:${z}px;--dx:${Math.round(Math.random()*80-40)}px;animation-duration:${d}s;animation-delay:-${(Math.random()*d).toFixed(1)}s"></i>`}).join('');
+  document.body.prepend(sn)})();
 load();setInterval(load,REFRESH_MS);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
 </script>
