@@ -191,7 +191,8 @@ html,body{overflow-x:clip}
 .box .v .wr{display:inline-block;margin-left:6px;padding:0 5px;font-size:.68rem;font-weight:700;border:1px solid var(--line);border-radius:var(--rs);color:var(--sub);vertical-align:1px}
 html[data-theme=diary] .cd,html[data-theme=diary] .pr,html[data-theme=diary] .lc,html[data-theme=diary] .dc{border:1.5px dashed var(--line)}
 html[data-theme=diary] .dc:hover,html[data-theme=diary] .dc.today,html[data-theme=diary] .lc:hover{border-color:var(--ai)}
-html[data-theme=diary] .cn{text-decoration:underline wavy #ffc83d;text-decoration-thickness:3px;text-underline-offset:8px}
+html[data-theme=diary] .cn{position:relative;padding-bottom:12px}
+html[data-theme=diary] .cn::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;background:var(--ac);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Cpath d='M0 4Q4 0 8 4T16 4' fill='none' stroke='%23000' stroke-width='2.6'/%3E%3C/svg%3E") repeat-x 0 0/16px 8px;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='8'%3E%3Cpath d='M0 4Q4 0 8 4T16 4' fill='none' stroke='%23000' stroke-width='2.6'/%3E%3C/svg%3E") repeat-x 0 0/16px 8px}
 @media(max-width:600px){.cn{font-size:3.2rem}.cd{padding:18px;gap:16px}.pr{padding:8px 10px;gap:8px}.pr i{width:30px;height:30px}}
 @media(min-width:900px){nav button.hm i{display:none}}
 /* ---- responsive ---- */
@@ -231,13 +232,13 @@ nav button{scroll-snap-align:center;min-height:52px}
 
 /* ---- themes ---- */
 html[data-theme=snow]{}
-html[data-theme=diary]{--bg:#fbf6ea;--paper:#fffdf7;--ink:#3d342b;--sub:#8c7f70;--line:#dccfb3;--ai:#23776c;--ai2:#dff0ea;--hl:#ffe08a;--shu:#d9593d;--shu2:#fde9e2;--head:"Zen Maru Gothic",sans-serif;--body:"Zen Maru Gothic","Noto Sans TC",sans-serif;--r:16px;--r2:10px;--rs:20px}
+html[data-theme=diary]{--bg:#fbf6e6;--paper:#fffdf5;--ink:#33302a;--sub:#867b6a;--line:#dccfae;--ai:#16786b;--ai2:#d3efe6;--hl:#ffd43b;--shu:#f0553a;--shu2:#ffe4dc;--ac:#ffc61a;--st1:#ffdf5e;--st2:#fff0a8;--head:"Zen Maru Gothic",sans-serif;--body:"Zen Maru Gothic","Noto Sans TC",sans-serif;--r:16px;--r2:10px;--rs:20px}
 html[data-theme=diary] body{background-image:radial-gradient(var(--line) 1.1px,transparent 1.3px);background-size:20px 20px}
-html[data-theme=diary] .vt{writing-mode:horizontal-tb;font-size:2.5rem;letter-spacing:.06em;text-decoration:underline wavy #ffc83d;text-decoration-thickness:3px;text-underline-offset:9px}
+html[data-theme=diary] .vt{writing-mode:horizontal-tb;font-size:2.5rem;letter-spacing:.06em;text-decoration:underline wavy var(--ac);text-decoration-thickness:3px;text-underline-offset:9px}
 html[data-theme=diary] header .wrap{flex-direction:column;gap:12px}
 html[data-theme=diary] .seal{border-radius:50%;transform:rotate(8deg)}
 html[data-theme=diary] .dh h2{font-weight:700}
-html[data-theme=diary] .dn{display:inline-block;padding:1px 16px;background:repeating-linear-gradient(135deg,#ffe699 0 7px,#fff0bd 7px 14px);color:var(--ink);transform:rotate(-2deg);border-radius:3px;letter-spacing:.14em}
+html[data-theme=diary] .dn{display:inline-block;padding:1px 16px;background:repeating-linear-gradient(135deg,var(--st1) 0 7px,var(--st2) 7px 14px);color:var(--ink);transform:rotate(-2deg);border-radius:3px;letter-spacing:.14em}
 html[data-theme=diary] .box,html[data-theme=diary] .subs,html[data-theme=diary] .hr,html[data-theme=diary] .pn button{border:1.5px dashed var(--line)}
 html[data-theme=diary] .tc{border:1.5px dashed var(--ai)}
 html[data-theme=diary] .sr{border-bottom:1.5px dashed var(--line)}
@@ -276,7 +277,7 @@ nav .wrap.ind button[aria-selected=true]{border-bottom-color:transparent}
 #snow i{position:absolute;top:-12px;border-radius:50%;background:var(--ai);opacity:.16;animation:fall linear infinite}
 @media(prefers-color-scheme:dark){html:not([data-theme=diary]) #snow i{background:#fff;opacity:.3}}
 html[data-theme=diary] #snow i{background:var(--shu);opacity:.22}
-html[data-theme=diary] #snow i:nth-child(3n){background:#ffc83d;opacity:.5}
+html[data-theme=diary] #snow i:nth-child(3n){background:var(--ac);opacity:.5}
 html[data-theme=diary] #snow i:nth-child(3n+1){background:var(--ai)}
 @keyframes fall{to{transform:translate(var(--dx),105vh)}}
 @media(prefers-reduced-motion:reduce){li.now .rail::after,.fade ol>li,.fade .dc,.seal,#snow i{animation:none}#snow{display:none}.lc,.dc,.pn button,.go2,#ind{transition:none}}
@@ -613,7 +614,7 @@ async function load(){
 /* ---- theme switcher ---- */
 const THEMES=[
  ['snow','雪白','日系簡約・明朝體・自動深色','#f6f8f8','#27415f','#b4452f'],
- ['diary','手帳','可愛手帳・圓體・點點紙','#fbf6ea','#23776c','#ffd166']
+ ['diary','手帳','可愛手帳・圓體・點點紙','#fbf6e6','#16786b','#ffd43b']
 ];
 function setTheme(id){
   document.documentElement.dataset.theme=id;
